@@ -1053,6 +1053,7 @@ int tic80_janet_dostring_ext(JanetTable *env, const char *str, const char *sourc
     while (str[len]) ++len;
     const uint8_t *bytes = (const uint8_t *)str;
 
+    // rest is mostly from janet_dobytes
     JanetParser parser;
     int errflags = 0, done = 0;
     int32_t index = 0;
