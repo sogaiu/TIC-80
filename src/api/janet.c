@@ -1083,17 +1083,25 @@ int tic80_janet_dostring_ext(JanetTable *env, const char *str, const char *sourc
                 }
             } else {
                 ret = janet_wrap_string(cres.error);
+                int32_t line = -1, column = -1;
+                // try to get error loc info from compiler, then parser if needed
+                if ((cres.error_mapping.line > 0) &&
+                    (cres.error_mapping.column > 0)) {
+                    line = cres.error_mapping.line;
+                    column = cres.error_mapping.column;
+                } else if ((parser.line > 0) && (parser.column > 0)) {
+                    line = parser.line;
+                    column = parser.column;
+                } else {
+                    janet_eprintf("Sorry, no error location info found.");
+                }
                 if (cres.macrofiber) {
                     janet_eprintf("%d:%d: compile error in %s: ",
-                                  parser.line,
-                                  parser.column,
-                                  sourcePath);
+                                  line, column, sourcePath);
                     janet_stacktrace_ext(cres.macrofiber, ret, "");
                 } else {
                     janet_eprintf("%d:%d: compile error in %s: %s\n",
-                                  parser.line,
-                                  parser.column,
-                                  sourcePath,
+                                  line, column, sourcePath,
                                   (const char *)cres.error);
                 }
                 errflags |= 0x02;
